@@ -43,7 +43,7 @@ function websocketMessageClient(msgObj) {
 }
 
 app.use(function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "http://isolations-hjalpen.herokuapp.com")
+  res.header("Access-Control-Allow-Origin", "https://isolations-hjalpen.herokuapp.com")
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
   next()
 })
