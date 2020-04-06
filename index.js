@@ -21,7 +21,12 @@ wss.on('connection', ws => {
     const messageObj = JSON.parse(str)
     if (messageObj.event === 'handshake') {
       id = messageObj.id
-      connections.push({ id: messageObj.id, hook: ws })
+      connections.push({
+        id: messageObj.id,
+        hook: ws,
+        position: messageObj.position,
+        message: messageObj.message
+      })
     }
   })
   ws.on('close', () => {
@@ -56,15 +61,20 @@ httpServer.listen(port)
 console.log(`Server listening on port ${port}`)
 
 /* API to create a new helper */
-function message(request, response)  {  
+function message(request, response)  {
   const { id, message } = request.body
+  console.log('message incoming', id, message)
   response.status(200).send()
   websocketMessageClient({ id, message })
 }
 
 /* API list all connections */
 function neederList(request, response)  {
-  const removeHook = connections.map( x => ({ id: x.id}) )
+  const removeHook = connections.map( x => ({
+    id: x.id,
+    position: x.position,
+    message: x.message
+  }) )
   response.status(200).json(removeHook)
 }
 
