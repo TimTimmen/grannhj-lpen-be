@@ -9,7 +9,7 @@ const httpServer = http.createServer(app)
 const wss = new WebSocket.Server({
     'server': httpServer
 })
-
+//
 /*  Volatile list of connections in the system - this should be replaced with a database,
 	since inactivity or any error in the code restarts the webserver and wipes the list */
 let connections = []
