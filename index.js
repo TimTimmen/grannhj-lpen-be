@@ -1,24 +1,41 @@
 const express = require('express')
 const bodyParser = require('body-parser')
+const http = require('http')
+const WebSocket = require('ws')
 
-const app = express()
 const port = process.env.PORT || 3000
+const app = express()
+const httpServer = http.createServer(app)
+const wss = new WebSocket.Server({
+    'server': httpServer
+})
 
-/*  Volatile list of helpers in the system - this should be replaced with a database,
+/*  Volatile list of connections in the system - this should be replaced with a database,
 	since inactivity or any error in the code restarts the webserver and wipes the list */
-let helpers = []
+let connections = []
 
-/* 	Serve the static folder /static/
-	/static/index.html -> oursite.com/index.html */
-app.use(express.static('build'))
-app.use('/static', express.static('build/static'))
+wss.on('connection', ws => {
+  let id
 
-/* 	Serve the image folder /static/images
-	/static/images/img.png -> oursite.com/images/img.png */
-//app.use('/images', express.static('static/images'))
+  ws.on('message', str => {
+    const messageObj = JSON.parse(str)
+    if (messageObj.event === 'handshake') {
+      id = messageObj.id
+      connections.push({ id: messageObj.id, hook: ws })
+    }
+  })
+  ws.on('close', () => {
+    connections = connections.filter(x => x.id !== id)
+  })
+})
 
-// Serve specifically node_modules js-cookie
-//app.use('/js.cookie.js', express.static('./node_modules/js-cookie/src/js.cookie.js'))
+function websocketMessageClient(msgObj) {
+  connections.forEach(connection => {
+    if (connection.id === msgObj.id) {
+      connection.hook.send(JSON.stringify(msgObj.message))
+    }
+  })
+}
 
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "http://isolations-hjalpen.herokuapp.com")
@@ -31,36 +48,28 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
 /* API */
-app.post('/helper', helper)
-app.get('/helper-list', helperList)
+app.post('/message', message)
+app.get('/needers', neederList)
 app.get('/clear', clear)
 
-/* Start the server */
-app.listen(port, () => console.log(`Backend for app grannleveransen.se port ${port}`))
-
+httpServer.listen(port)
+console.log(`Server listening on port ${port}`)
 
 /* API to create a new helper */
-function helper(request, response)  {  
-  const { position, agent, id } = request.body
-  
-  helpers.push({
-  	position: position,
-  	agent: agent,
-    id: id
-  })
-
+function message(request, response)  {  
+  const { id, message } = request.body
   response.status(200).send()
+  websocketMessageClient({ id, message })
 }
 
-
-/* API list all helpers */
-function helperList(request, response)  {
-  response.status(200).json(helpers)
+/* API list all connections */
+function neederList(request, response)  {
+  const removeHook = connections.map( x => ({ id: x.id}) )
+  response.status(200).json(removeHook)
 }
 
-
-/* Clear all helpers */
+/* Clear all connections */
 function clear(request, response)  {
-  helpers = []
+  connections = []
   response.status(200).send()
 } 
