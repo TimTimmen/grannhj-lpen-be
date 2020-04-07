@@ -9,12 +9,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ErikLarsson82/grannleveransen-be.git"
+    "url": "git+https://github.com/TimTimmen/grannhj-lpen-be.git"
   },
-  "author": "Erik Larsson",
+  "author": "TimTimmen",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/ErikLarsson82/grannleveransen-be/issues"
+    "url": "https://github.com/TimTimmen/grannhj-lpen-be.git"
   },
   "homepage": "grannleveransen.se",
   "dependencies": {
