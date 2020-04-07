@@ -43,6 +43,9 @@ function websocketMessageClient(msgObj) {
 }
 
 app.use(function(req, res, next) {
+  // Change this URL to the one where the frontend code is deployed
+  // For example https://isolations-hjalpen.herokuapp.com for the deployed code
+  // and http://localhost:3000 for local development
   res.header("Access-Control-Allow-Origin", "https://isolations-hjalpen.herokuapp.com")
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
   next()
